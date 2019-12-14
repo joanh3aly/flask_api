@@ -1,27 +1,28 @@
 import mysql.connector
 import itertools
 import dbconfig as cfg
-
+from db_connect import db as db
 
 
 
 class BookDao:
 
-  db=""
+  # db=""
    
   def __init__(self):
-    self.db = mysql.connector.connect(
-      # host="localhost",
-      # user="root",
-      # password="",
-      # database="Books",
-      # auth_plugin='mysql_native_password'
-      host = cfg.mysql['host'], 
-      user = cfg.mysql['user'], 
-      password = cfg.mysql['password'], 
-      database = cfg.mysql['database'], 
-      auth_plugin='mysql_native_password'
-    )
+    # self.db = mysql.connector.connect(
+    #   # host="localhost",
+    #   # user="root",
+    #   # password="",
+    #   # database="Books",
+    #   # auth_plugin='mysql_native_password'
+    #   host = cfg.mysql['host'], 
+    #   user = cfg.mysql['user'], 
+    #   password = cfg.mysql['password'], 
+    #   database = cfg.mysql['database'], 
+    #   auth_plugin='mysql_native_password'
+    # )
+    self.db = db
 
   def get_all(self):
     cursor = self.db.cursor(dictionary=True)

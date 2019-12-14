@@ -14,19 +14,20 @@ import time
 import mysql.connector
 import itertools
 import dbconfig as cfg
+from db_connect import db as db
 
-db = mysql.connector.connect(
-  # host="localhost",
-  # user="root",
-  # password="",
-  # database="Books",
-  # auth_plugin='mysql_native_password'
-  host = cfg.mysql['host'], 
-  user = cfg.mysql['user'], 
-  password = cfg.mysql['password'], 
-  database = cfg.mysql['database'], 
-  auth_plugin='mysql_native_password'
-)
+# db = mysql.connector.connect(
+#   # host="localhost",
+#   # user="root",
+#   # password="",
+#   # database="Books",
+#   # auth_plugin='mysql_native_password'
+#   host = cfg.mysql['host'], 
+#   user = cfg.mysql['user'], 
+#   password = cfg.mysql['password'], 
+#   database = cfg.mysql['database'], 
+#   auth_plugin='mysql_native_password'
+# )
 
 class StdOutListener(StreamListener):
 
@@ -37,13 +38,6 @@ class StdOutListener(StreamListener):
     self.linenum_re = re.compile(r'([A-Z][A-Z]\d+)')
     self.retweets_re = re.compile(r'^RT\s')
     self.terms = terms
-    # self.db = mysql.connector.connect(
-    #   host="localhost",
-    #   user="root",
-    #   password="Ma1r3ad2015*%",
-    #   database="Books",
-    #   auth_plugin='mysql_native_password'
-    # )
 
   # def create_tweets(self, title, author, dateposted, tweetcontent):
     # tweets = {
