@@ -120,13 +120,11 @@
 
     function doCreate() {
       var form = document.getElementById('createUpdateForm')
-      // console.log('form', form)
       var book = {}
       // book.id = form.querySelector('input[name="id"]').value
       book.title = form.querySelector('input[name="title"]').value
       book.author = form.querySelector('input[name="author"]').value
       book.dateposted = form.querySelector('input[name="dateposted"]').value
-      // console.log(JSON.stringify(book))
       createBookAjax(book)
     }
 
@@ -167,6 +165,7 @@
     function showViewAll() {
       document.getElementById('showCreateButton').style.display = "block"
       document.getElementById('bookTable').style.display = "block"
+      document.getElementById('tweetsTable').style.display = "none"
       document.getElementById('createUpdateForm').style.display = "none"
     }
 
@@ -235,26 +234,30 @@
           showViewAll()
         },
         error: function (xhr, status, error) {
-          console.log("error: " + status + " msg:" + error);
+          console.log("createBookAjax - error: " + status + " msg:" + error);
         }
       });
     }
 
     function getBooksAjax() {
+      console.log('getBooksAjax');
       $.ajax({
         url: host+'/api/books',
         method: "GET",
         success: function (data) {
           for (key in data) {
             addBookToTable(data[key]);
+            showViewAll()
           }
+        },
+        error: function (xhr, status, error) {
+          console.log("getBooksAjax - error: " + status + " msg:" + error);
         }
       });
     }
 
     function updateBookAjax(book) {
-      //var car = {"reg":"12 D 1234","price":8000}
-      console.log(JSON.stringify(book));
+      console.log('updateBookAjax ', JSON.stringify(book));
       $.ajax({
         "url": host+"/api/books/" + encodeURI(book.id),
         "method": "PUT",
@@ -267,13 +270,13 @@
           // addBookToTable(book)   
         },
         "error": function (xhr, status, error) {
-          console.log("error: " + status + " msg:" + error);
+          console.log("updateBookAjax - error: " + status + " msg:" + error);
         }
       });
     }
 
     function deleteBookAjax(id) {
-      //console.log(JSON.stringify('deleting '+id));
+      console.log(JSON.stringify('deleteBookAjax '+id));
       $.ajax({
         "url": host+"/api/books/" + encodeURI(id),
         "method": "DELETE",
@@ -285,13 +288,13 @@
 
         },
         "error": function (xhr, status, error) {
-          console.log("error: " + status + " msg:" + error);
+          console.log("deleteBookAjax - error: " + status + " msg:" + error);
         }
       });
     }
 
     function getTweetsAjax(id) {
-      //console.log(JSON.stringify('deleting '+id));
+      console.log('getTweetsAjax ', id);
       $.ajax({
         "url": host+"/api/tweets/" + encodeURI(id),
         "method": "GET",
@@ -303,12 +306,13 @@
 
         },
         "error": function (xhr, status, error) {
-          console.log("error: " + status + " msg:" + error);
+          console.log("getTweetsAjax - error: " + status + " msg:" + error);
         }
       });
     }
 
     function getAllTweetsAjax() {
+      console.log('getAllTweetsAjax ', id)
       $.ajax({
         url: host+'/api/tweets',
         method: "GET",
@@ -318,6 +322,9 @@
             addTweetsToTable(data[key]);
             // console.log(data[key])
           }
+        },
+        "error": function (xhr, status, error) {
+          console.log("getAllTweetsAjax - error: " + status + " msg:" + error);
         }
       });
     }
