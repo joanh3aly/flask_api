@@ -14,7 +14,9 @@ import time
 import mysql.connector
 import itertools
 import dbconfig as cfg
-from db_connect import db as db
+from db_connect import db as cnx
+
+
 
 # db = mysql.connector.connect(
 #   # host="localhost",
@@ -29,15 +31,21 @@ from db_connect import db as db
 #   auth_plugin='mysql_native_password'
 # )
 
+
+
 class StdOutListener(StreamListener):
 
-  def __init__(self, terms):
+  def __init__(self, terms, id):
     self.sgtz = timezone('Europe/Dublin')
     self.utc = pytz.timezone('UTC')          
     self.regex = re.compile('|'.join(terms).lower())   # re.compile(pattern, flags=0)  Compile a regular expression pattern into a regular expression object, which can be used for matching using its match() and search() methods
     self.linenum_re = re.compile(r'([A-Z][A-Z]\d+)')
     self.retweets_re = re.compile(r'^RT\s')
     self.terms = terms
+    self.id = id
+
+    print('imported db', cnx)
+    # print('not imported db', db)
 
   # def create_tweets(self, title, author, dateposted, tweetcontent):
     # tweets = {
@@ -129,19 +137,20 @@ class StdOutListener(StreamListener):
     tweets = {
       'title': self.terms[0],
       'author': self.terms[1],
+      'bookid': self.id,
       'dateposted': tmstr,
       'tweetcontent': text
     }  
     print('tweets ', tweets)
     # self.create_tweets( self.terms[0], self.terms[1], tmstr, text)
-    cursor = db.cursor()
-    sql = "insert into Tweets (Author,Title,DatePosted,TweetContent) values (%s, %s, %s, %s)"
-    values = (tweets['author'],tweets['title'],tweets['dateposted'],tweets['tweetcontent'])
+    cursor = cnx.cursor()
+    sql = "insert into Tweets (Author,Title,DatePosted,bookid,TweetContent) values (%s, %s, %s, %s, %s)"
+    values = (tweets['author'],tweets['title'],tweets['dateposted'], tweets['bookid'], tweets['tweetcontent'])
     cursor.execute(sql, values)
     print('last ', cursor.lastrowid)
     result = cursor.lastrowid
     cursor.close()
-    db.commit() 
+    cnx.commit() 
   
     return True
       

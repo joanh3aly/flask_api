@@ -6,22 +6,8 @@ from db_connect import db as db
 
 
 class BookDao:
-
-  # db=""
    
   def __init__(self):
-    # self.db = mysql.connector.connect(
-    #   # host="localhost",
-    #   # user="root",
-    #   # password="",
-    #   # database="Books",
-    #   # auth_plugin='mysql_native_password'
-    #   host = cfg.mysql['host'], 
-    #   user = cfg.mysql['user'], 
-    #   password = cfg.mysql['password'], 
-    #   database = cfg.mysql['database'], 
-    #   auth_plugin='mysql_native_password'
-    # )
     self.db = db
 
   def get_all(self):
@@ -31,7 +17,6 @@ class BookDao:
     result = cursor.fetchall()
     desc = cursor.description
     column_names = [col[0] for col in desc]
-    # print('column_names ', column_names)
     cursor.close()
     return result
 
@@ -53,12 +38,10 @@ class BookDao:
     sql = "insert into Books (Author,Title,DatePosted) values (%s, %s, %s)"
     values = (book['author'],book['title'],book['dateposted'])
     cursor.execute(sql, values)
-    # result = cursor.fetchone()
     print('last ', cursor.lastrowid)
     result = cursor.lastrowid
     cursor.close()
     self.db.commit() 
-    # db.close()
     return result
 
 
@@ -85,15 +68,14 @@ class BookDao:
     # self.db.commit() 
     return id
 
-  def get_tweets(self):
+  def get_tweets(self, id):
     cursor = self.db.cursor(dictionary=True)
-    sql = "SELECT * FROM Tweets"
-    cursor.execute(sql)
+    sql = "SELECT * from Tweets WHERE bookid = %s"
+    print('sql ', sql)
+    values = (id,)
+    cursor.execute(sql, values)
     result = cursor.fetchall()
-    desc = cursor.description
-    column_names = [col[0] for col in desc]
-    # print('column_names ', column_names)
-    cursor.close()
+    print('result ', result)
     return result
 
 books_dao = BookDao()

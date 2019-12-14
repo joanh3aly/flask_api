@@ -24,15 +24,9 @@ from twitter import StdOutListener
 def create_app():
     app = Flask(__name__)
     csrf.init_app(app)
-# csrf = CSRFProtect(app)
-# # csrf.exempt("your_package.your_module.your_view_function")
-# csrf.exempt("create()")
 
-# app = Flask(__name__, static_url_path='', static_folder='.')
-#app = Flask(__name__)
 app = Flask(__name__)
 books_class = BookDao()
-# listener = StdOutListener(TERMS)
 
 @app.route("/")
 def main():
@@ -64,9 +58,7 @@ def api_books():
 @app.route('/api/books', methods=['POST'])
 @csrf.exempt
 def create():
-    # print('req', request.json['author'])
     print('req', request)
-    # global nextId
     if not request.json:
       abort(400)
     # other checking
@@ -76,13 +68,10 @@ def create():
       'dateposted': request.json['dateposted']
     }  
     print('req', books['title'])
-  #   # posts.append(post)
     results = books_class.create(books)
     print('results', results)
-  #   # nextId += 1
     return jsonify(results)
   #   # return str(nextId)
-  #   # return render_template('home.html' , posts=posts)
 
 #curl  -i -H "Content-Type:application/json" -X PUT -d "{\"Title\":\"hello\",\"Author\":\"someone\",\"Price\":123}" http://127.0.0.1:5000/books/1
 @app.route('/api/books/<int:id>', methods=['PUT'])
@@ -125,7 +114,7 @@ def tweets(id):
 
     TERMS = [foundBook[1], foundBook[2]]
     # TERMS = ['Emma', 'Jane Austen']
-    listener = StdOutListener(TERMS)
+    listener = StdOutListener(TERMS, foundBook[0])
     # The consumer keys can be found on your application's Details page located at https://dev.twitter.com/apps (under "OAuth settings")
     CONSUMER_KEY="hVXOnpdbN0uLtAUSEjOdUgL6b"
     CONSUMER_SECRET="CWYDtRZTFJdN5WQO6WaVkNoLYDuWpBFilAhFZEnbqqQKMfDX8f"
@@ -145,15 +134,34 @@ def tweets(id):
     
     return jsonify(id)
 
-@app.route('/api/tweets', methods=['GET'])
-def get_all_tweets():
-    results = books_class.get_tweets()
-    print('results ', results)
+@app.route('/api/view_tweets/<int:id>', methods=['GET'])
+def get_all_tweets(id):
+    print('id ', id)
+    results = books_class.get_tweets(id)
+    print('results ', type(results))
+    # results_lower = []
+    # key_lower = []
+    # value = []
+    # for row in results:
+    #   print('row ', row)
+    # for k, v in results.items():
+    #   print('key ', k, 'v ', v)
+    #   key_lower.append(k.lower())
+    #   value.append(v)
+    #   # results_lower.append({k.lower(): v for k, v in each.items()}) #=  {k.lower(): v for k, v in each.items()}
+    # results_lower = zip(key_lower, value)
+    # output_dict = {}
+    # for i, j  in results_lower:
+    #   print('each ', i) 
+    #   output_dict[i] = j
+    # print('results lower', output_dict)
     results_lower = []
     for each in results:
-        results_lower.append({k.lower(): v for k, v in each.items()}) #=  {k.lower(): v for k, v in each.items()}
-    # print('results lower', results_lower)
+        results_lower.append({k.lower(): v for k, v in each.items()}) 
+    
     return jsonify(results_lower)
+
+    # return jsonify(output_dict)
 
 
 
