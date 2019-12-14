@@ -212,11 +212,15 @@
   </script>
   <script src="/static/jquery-3.4.1.js"></script>
   <script>
+    /* Set host variable for remote server */
+    host = window.location.origin
+    console.log('my host ', host)
+
     function createBookAjax(book) {
       //var car = {"reg":"12 D 1234","make":"Fiat","model":"Punto","price":3000}
       console.log('createBookAjax', JSON.stringify(book));
       $.ajax({
-        url: "/api/books",
+        url: host+"/api/books",
         method: "POST",
         data: JSON.stringify(book),
         dataType: "JSON",
@@ -239,7 +243,7 @@
 
     function getBooksAjax() {
       $.ajax({
-        url: '/api/books',
+        url: host+'/api/books',
         method: "GET",
         success: function (data) {
           for (key in data) {
@@ -253,7 +257,7 @@
       //var car = {"reg":"12 D 1234","price":8000}
       console.log(JSON.stringify(book));
       $.ajax({
-        "url": "http://127.0.0.1:5000/api/books/" + encodeURI(book.id),
+        "url": host+"/api/books/" + encodeURI(book.id),
         "method": "PUT",
         "data": JSON.stringify(book),
         "dataType": "JSON",
@@ -272,7 +276,7 @@
     function deleteBookAjax(id) {
       //console.log(JSON.stringify('deleting '+id));
       $.ajax({
-        "url": "http://127.0.0.1:5000/api/books/" + encodeURI(id),
+        "url": host+"/api/books/" + encodeURI(id),
         "method": "DELETE",
         "data": "",
         "dataType": "JSON",
@@ -290,7 +294,7 @@
     function getTweetsAjax(id) {
       //console.log(JSON.stringify('deleting '+id));
       $.ajax({
-        "url": "http://127.0.0.1:5000/api/tweets/" + encodeURI(id),
+        "url": host+"/api/tweets/" + encodeURI(id),
         "method": "GET",
         "data": "",
         "dataType": "JSON",
@@ -307,7 +311,7 @@
 
     function getAllTweetsAjax() {
       $.ajax({
-        url: '/api/tweets',
+        url: host+'/api/tweets',
         method: "GET",
         success: function (data) {
           console.log(data)

@@ -1,5 +1,6 @@
 import mysql.connector
 import itertools
+import dbconfig as cfg
 
 
 
@@ -10,10 +11,15 @@ class BookDao:
    
   def __init__(self):
     self.db = mysql.connector.connect(
-      host="localhost",
-      user="root",
-      password="Ma1r3ad2015*%",
-      database="Books",
+      # host="localhost",
+      # user="root",
+      # password="",
+      # database="Books",
+      # auth_plugin='mysql_native_password'
+      host = cfg.mysql['host'], 
+      user = cfg.mysql['user'], 
+      password = cfg.mysql['password'], 
+      database = cfg.mysql['database'], 
       auth_plugin='mysql_native_password'
     )
 
