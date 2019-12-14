@@ -36,7 +36,6 @@ books_class = BookDao()
 
 @app.route("/")
 def main():
-    # return "Hello, World!"
     return render_template('main.html', reload = time.time())
 
 @app.route("/api/books")
@@ -44,7 +43,7 @@ def api_books():
     results = books_class.get_all()
     results_lower = []
     for each in results:
-        results_lower.append({k.lower(): v for k, v in each.items()}) #=  {k.lower(): v for k, v in each.items()}
+        results_lower.append({k.lower(): v for k, v in each.items()}) 
     
     return jsonify(results_lower)
 
