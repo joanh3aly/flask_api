@@ -2,9 +2,6 @@ from flask import Flask, jsonify, render_template, request, abort
 import time
 from book_dao import BookDao 
 from twitter import *
-# from flask_wtf import csrf
-# import flask_wtf.csrf 
-# from app import csrf
 from flask_wtf.csrf import CSRFProtect
 csrf = CSRFProtect()
 from tweepy.streaming import StreamListener
@@ -41,19 +38,6 @@ def api_books():
     
     return jsonify(results_lower)
 
-# @app.route("/api/books/<int:id>")
-# def find_by_id(id):
-#     # print('id', str(id))
-#     results = books_class.find_by_id(id)
-#     # print('results ', results)
-#     # findPost = list(filter(lambda t: t['id']==id, posts))
-#     # print('findpost ', type(findPost))
-#     # print('findpost ', findPost)
-#     if len(results) == 0:
-#       return jsonify({}), 204
-
-#     return jsonify(results)
-
 # curl -i -H "Content-Type:application/json" -X POST -d '{"title":"Sherlock Holmes", "author":"AC Doyle","date_posted":"1/12/2019"}' http://127.0.0.1:5000/api/books
 @app.route('/api/books', methods=['POST'])
 @csrf.exempt
@@ -71,7 +55,6 @@ def create():
     results = books_class.create(books)
     print('results', results)
     return jsonify(results)
-  #   # return str(nextId)
 
 #curl  -i -H "Content-Type:application/json" -X PUT -d "{\"Title\":\"hello\",\"Author\":\"someone\",\"Price\":123}" http://127.0.0.1:5000/books/1
 @app.route('/api/books/<int:id>', methods=['PUT'])
@@ -101,8 +84,6 @@ def delete(id):
   books_class.delete(id)
   return jsonify({"done":True})
 
-
-# @app.route("/api/tweets<int:id>' , methods=['GET']")
 @app.route('/api/tweets/<int:id>', methods=['GET'])
 def tweets(id):
     foundBook = books_class.find_by_id(id)
@@ -113,7 +94,6 @@ def tweets(id):
         abort(404)
 
     TERMS = [foundBook[1], foundBook[2]]
-    # TERMS = ['Emma', 'Jane Austen']
     listener = StdOutListener(TERMS, foundBook[0])
     # The consumer keys can be found on your application's Details page located at https://dev.twitter.com/apps (under "OAuth settings")
     CONSUMER_KEY="hVXOnpdbN0uLtAUSEjOdUgL6b"
@@ -124,8 +104,7 @@ def tweets(id):
     auth = OAuthHandler(CONSUMER_KEY, CONSUMER_SECRET)
     auth.set_access_token(ACCESS_TOKEN, ACCESS_TOKEN_SECRET)
 
-    stream = Stream(auth, listener, timeout=60)  #initialize Stream object with a time out limit
-
+    stream = Stream(auth, listener, timeout=60)  
     print("Listening to filter stream...")
     print("stream object")
     print(stream)
@@ -139,33 +118,22 @@ def get_all_tweets(id):
     print('id ', id)
     results = books_class.get_tweets(id)
     print('results ', type(results))
-    # results_lower = []
-    # key_lower = []
-    # value = []
-    # for row in results:
-    #   print('row ', row)
-    # for k, v in results.items():
-    #   print('key ', k, 'v ', v)
-    #   key_lower.append(k.lower())
-    #   value.append(v)
-    #   # results_lower.append({k.lower(): v for k, v in each.items()}) #=  {k.lower(): v for k, v in each.items()}
-    # results_lower = zip(key_lower, value)
-    # output_dict = {}
-    # for i, j  in results_lower:
-    #   print('each ', i) 
-    #   output_dict[i] = j
-    # print('results lower', output_dict)
     results_lower = []
     for each in results:
         results_lower.append({k.lower(): v for k, v in each.items()}) 
     
     return jsonify(results_lower)
 
-    # return jsonify(output_dict)
-
-
+@app.route('/api/view_tweets/', methods=['GET'])
+def get_all_tweets2():
+    results = books_class.get_tweets2()
+    print('results ', type(results))
+    results_lower = []
+    for each in results:
+        results_lower.append({k.lower(): v for k, v in each.items()}) 
+    
+    return jsonify(results_lower)
 
 
 if __name__ == "__main__":
-  # app.run()
   app.run(debug='True')

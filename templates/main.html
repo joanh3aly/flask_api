@@ -10,8 +10,7 @@
   <pre id="info"></pre>
   <div id="description"></div>
   <div>
-    <button id="showCreateButton" onclick="showCreate()">Create</button>
-    <!-- <button id="showCreateButton">Create</button> -->
+    <button id="showCreateButton" onclick="showCreate()">Create book</button>
   </div>
 
   <div>
@@ -30,9 +29,10 @@
     </table>
   </div>
 
-  <div>
-    <table class="table" id="tweetsTable">
-      <tr>
+  <div id="tweets">
+    <span><button id="back" onclick="showViewAll()">Back to books list</button></span>
+    <table class="tweetsTable" id="tweetsTable">
+      <tr class="tweetsTableHeader">
         <th>ID</th>
         <th>Title</th>
         <th>Author</th>
@@ -124,7 +124,6 @@
     function doCreate() {
       var form = document.getElementById('createUpdateForm')
       var book = {}
-      // book.id = form.querySelector('input[name="id"]').value
       book.title = form.querySelector('input[name="title"]').value
       book.author = form.querySelector('input[name="author"]').value
       book.dateposted = form.querySelector('input[name="dateposted"]').value
@@ -162,30 +161,31 @@
     function getTweets(r) {
       document.getElementById('showCreateButton').style.display = "none"
       document.getElementById('bookTable').style.display = "none"
-      document.getElementById('tweetsTable').style.display = "block"
+      document.getElementById('tweets').style.display = "block"
       document.getElementById('createUpdateForm').style.display = "none"
       document.getElementById('createLabel').style.display = "none"
       document.getElementById('updateLabel').style.display = "none"
       document.getElementById('doCreateButton').style.display = "none"
       document.getElementById('doUpdateButton').style.display = "none"
-
-      var tableElement = document.getElementById('bookTable');
+      document.getElementById('back').style.display = "block"
       var rowElement = r.parentNode.parentNode;
       var index = rowElement.rowIndex;
+      var id = rowElement.getAttribute("id")
       console.log('index', rowElement.getAttribute("id"))
-      getAllTweetsAjax(rowElement.getAttribute("id"));
-      // getAllTweetsAjax()   
+      getAllTweetsAjax2(id) 
+      document.getElementById('tweetsTable').style.display = "block"      
     }
 
     function showViewAll() {
       document.getElementById('showCreateButton').style.display = "block"
       document.getElementById('bookTable').style.display = "block"
+      document.getElementById('bookTable').style.display = "block"
       document.getElementById('tweetsTable').style.display = "none"
       document.getElementById('createUpdateForm').style.display = "none"
+      document.getElementById('back').style.display = "none"
     }
 
     function addBookToTable(book) {
-      // console.log('addBookToTable ', book.dateposted)
       var tableElement = document.getElementById('bookTable')
       var rowElement = tableElement.insertRow(-1)
       rowElement.setAttribute('ID', book.id)
@@ -197,7 +197,6 @@
       cell3.innerHTML = book.author
       var cell4 = rowElement.insertCell(3);
       cell4.innerHTML = book.dateposted
-      // console.log('cell4.innerHTML ', cell4.innerHTML)
       var cell5 = rowElement.insertCell(4);
       cell5.innerHTML = '<button onclick="showUpdate(this)">Update</button>'
       var cell6 = rowElement.insertCell(5);
@@ -206,34 +205,38 @@
       cell7.innerHTML = '<button onclick=doTweets(this)>Find tweets</button>'
       var cell8 = rowElement.insertCell(7);
       cell8.innerHTML = ''
-      // cell8.style.display = "none"
       var cell9 = rowElement.insertCell(8);
       cell9.innerHTML = '<button onclick=getTweets(this)>View tweets</button>'
     }
 
-    function addTweetsToTable(tweet) {
-      console.log('addTweetsToTable ', tweet)
-      var tableElement = document.getElementById('tweetsTable')
-      var rowElement = tableElement.insertRow(-1)
-      rowElement.setAttribute('ID', tweet.id)
-      var cell1 = rowElement.insertCell(0);
-      cell1.innerHTML = tweet.id
-      var cell2 = rowElement.insertCell(1);
-      cell2.innerHTML = tweet.title
-      var cell3 = rowElement.insertCell(2);
-      cell3.innerHTML = tweet.author
-      var cell4 = rowElement.insertCell(3);
-      cell4.innerHTML = tweet.bookid
-      var cell5 = rowElement.insertCell(3);
-      cell5.innerHTML = tweet.dateposted
-      // console.log('cell4.innerHTML ', cell4.innerHTML)
-      var cell6 = rowElement.insertCell(4);
-      cell6.innerHTML = tweet.tweetcontent
+    function addTweetsToTable(tweet, id) {
+      if (id == tweet.bookid){
+        console.log('addTweetsToTable ', tweet)
+        console.log('addTweetsToTable id ', id)
+        var tableElement = document.getElementById('tweetsTable')
+        var rowElement = tableElement.insertRow(-1)
+        rowElement.setAttribute('ID', tweet.id)
+        
+        var tweetID = 'tweet_'+tweet.bookid
+        rowElement.setAttribute("class", tweetID);
+        var cell1 = rowElement.insertCell(0);
+        cell1.innerHTML = tweet.id
+        var cell2 = rowElement.insertCell(1);
+        cell2.innerHTML = tweet.title
+        var cell3 = rowElement.insertCell(2);
+        cell3.innerHTML = tweet.author
+        var cell4 = rowElement.insertCell(3);
+        cell4.innerHTML = tweet.bookid
+        var cell5 = rowElement.insertCell(3);
+        cell5.innerHTML = tweet.dateposted
+        var cell6 = rowElement.insertCell(4);
+        cell6.innerHTML = tweet.tweetcontent
+      }
     }
   </script>
   <script src="/static/jquery-3.4.1.js"></script>
   <script>
-    /* Set host variable for remote server */
+    /* Set host variable */
     host = window.location.origin
     console.log('my host ', host)
 
@@ -251,7 +254,6 @@
           book.id = result
           console.log('success book', JSON.stringify(book));
           addBookToTable(book)
-          // getBooksAjax()
           clearForm()
           showViewAll()
         },
@@ -288,8 +290,6 @@
         contentType: "application/json; charset=utf-8",
         "success": function (result) {
           getBooksAjax()
-          // console.log('success book', JSON.stringify(book));
-          // addBookToTable(book)   
         },
         "error": function (xhr, status, error) {
           console.log("updateBookAjax - error: " + status + " msg:" + error);
@@ -324,10 +324,6 @@
         "dataType": "JSON",
         contentType: "application/json; charset=utf-8",
         "success": function (result) {
-            // for (key in data) {
-            //   addTweetsToTable(data[key]);
-            //   console.log('data[key]', data[key])
-            // }
           console.log('ajax tweets', result);
         },
         "error": function (xhr, status, error) {
@@ -336,28 +332,49 @@
       });
     }
 
-    function getAllTweetsAjax(id) {
-      console.log('getAllTweetsAjax ', id)
-      $.ajax({
-        url: host+'/api/view_tweets/' + encodeURI(id),
-        method: "GET",
-        success: function (data) {
-          console.log(data)
-          for (key in data) {
-            addTweetsToTable(data[key]);
-            console.log(data[key])
+    // function getAllTweetsAjax(id) {
+    //   console.log('getAllTweetsAjax ', id)
+    //   $.ajax({
+    //     url: host+'/api/view_tweets/' + encodeURI(id),
+    //     method: "GET",
+    //     success: function (data) {
+    //       console.log(data)
+    //       for (key in data) {
+    //         addTweetsToTable(data[key]);
+    //         console.log(data[key])
+    //       }
+    //     },
+    //     "error": function (xhr, status, error) {
+    //       console.log("getAllTweetsAjax - error: " + status + " msg:" + error);
+    //     }
+    //   });
+    // }
+
+    function getAllTweetsAjax2(id) {
+        console.log('getAllTweetsAjax ')
+        $.ajax({
+          url: host+'/api/view_tweets/',
+          method: "GET",
+          success: function (data) {
+            console.log(data)
+            for (key in data) {
+              addTweetsToTable(data[key], id);
+            }
+          },
+          "error": function (xhr, status, error) {
+            console.log("getAllTweetsAjax 2 - error: " + status + " msg:" + error);
           }
-        },
-        "error": function (xhr, status, error) {
-          console.log("getAllTweetsAjax - error: " + status + " msg:" + error);
-        }
-      });
-    }
+        });
+      }
+
+    // setInterval(function(){
+    //   console.log('interval ')
+    //   getAllTweetsAjax2() 
+    // }, 7000)
 
 
     $(function () {
       getBooksAjax()
-      // getAllTweetsAjax()
     })
   </script>
 
