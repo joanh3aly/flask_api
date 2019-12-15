@@ -9,11 +9,13 @@
 
   <pre id="info"></pre>
   <div id="description"></div>
-  <div>
-    <button id="showCreateButton" onclick="showCreate()">Create book</button>
-  </div>
 
-  <div>
+
+  <div id='books'>
+    <h3>Books</h3>
+    <div>
+      <button id="showCreateButton" onclick="showCreate()">Create book</button>
+    </div>
     <table class="table" id="bookTable">
       <tr>
         <th>ID</th>
@@ -30,16 +32,20 @@
   </div>
 
   <div id="tweets">
+    <h3>Tweets</h3>
+    <div id='progressDisplay'></div>
     <span><button id="back" onclick="showViewAll()">Back to books list</button></span>
     <table class="tweetsTable" id="tweetsTable">
-      <tr class="tweetsTableHeader">
+      <thead>
         <th>ID</th>
         <th>Title</th>
         <th>Author</th>
         <th>Date Posted</th>
         <th>Tweet Content</th>
         <th>Book ID</th>
-      </tr>
+      </thead>
+      <tbody>
+      </tbody>
     </table>
   </div>
 
@@ -148,14 +154,26 @@
     }
 
     function doTweets(r) {
-      var tableElement = document.getElementById('bookTable').childNodes[1];      
+      var rowElement = r.parentNode.parentNode;
+      getTweetsAjax(rowElement.getAttribute("id"))
+      countTweetsAjax(rowElement.getAttribute("id"), r, 'doTweets')
+    }
+
+    function progressCellDo(r, tweetNumber) {    
       var rowElement = r.parentNode.parentNode;
       var index = rowElement.rowIndex;
       console.log('index', rowElement.getAttribute("id"))
       var cell8 = rowElement.insertCell(7);
-      cell8.innerHTML = 'Collecting tweets for book # '+index
-      rowElement.childNodes[8].style.display = "none"  
-      getTweetsAjax(rowElement.getAttribute("id")); 
+      cell8.innerHTML = tweetNumber + ' tweets collected for book # ' + rowElement.getAttribute("id")
+      rowElement.childNodes[8].style.display = "none"
+    }
+
+    function progressCellGet(r, tweetNumber) {
+      console.log('progressCellGet ', progressCellGet)
+      var rowElement = r.parentNode.parentNode;
+      var div = document.getElementById('progressDisplay')
+      div.innerHTML = '<h4>' + tweetNumber + ' tweets collected for book # ' + rowElement.getAttribute("id") + '</h4>'
+      console.log('div.innerHTML ', div.innerHTML)
     }
 
     function getTweets(r) {
@@ -167,13 +185,17 @@
       document.getElementById('updateLabel').style.display = "none"
       document.getElementById('doCreateButton').style.display = "none"
       document.getElementById('doUpdateButton').style.display = "none"
+      document.getElementById('books').style.display = "none"
       document.getElementById('back').style.display = "block"
+
       var rowElement = r.parentNode.parentNode;
       var index = rowElement.rowIndex;
       var id = rowElement.getAttribute("id")
       console.log('index', rowElement.getAttribute("id"))
-      getAllTweetsAjax2(id) 
-      document.getElementById('tweetsTable').style.display = "block"      
+      getAllTweetsAjax(id)
+      countTweetsAjax(rowElement.getAttribute("id"), r, 'getTweets')
+      document.getElementById('progressDisplay').style.display = "block"
+      document.getElementById('tweetsTable').style.display = "block"
     }
 
     function showViewAll() {
@@ -183,6 +205,10 @@
       document.getElementById('tweetsTable').style.display = "none"
       document.getElementById('createUpdateForm').style.display = "none"
       document.getElementById('back').style.display = "none"
+      document.getElementById('progressDisplay').style.display = "none"
+      document.getElementById('tweets').style.display = "none"
+      document.getElementById('books').style.display = "block"
+      removeTweetsFromTable()
     }
 
     function addBookToTable(book) {
@@ -209,29 +235,33 @@
       cell9.innerHTML = '<button onclick=getTweets(this)>View tweets</button>'
     }
 
+    function removeTweetsFromTable() {
+      console.log('$("#tweetsTable tbody tr") ', $("#tweetsTable tbody tr"))
+      $("#tweetsTable tbody tr").remove();
+    }
+
     function addTweetsToTable(tweet, id) {
-      if (id == tweet.bookid){
-        console.log('addTweetsToTable ', tweet)
-        console.log('addTweetsToTable id ', id)
-        var tableElement = document.getElementById('tweetsTable')
-        var rowElement = tableElement.insertRow(-1)
-        rowElement.setAttribute('ID', tweet.id)
-        
-        var tweetID = 'tweet_'+tweet.bookid
-        rowElement.setAttribute("class", tweetID);
-        var cell1 = rowElement.insertCell(0);
-        cell1.innerHTML = tweet.id
-        var cell2 = rowElement.insertCell(1);
-        cell2.innerHTML = tweet.title
-        var cell3 = rowElement.insertCell(2);
-        cell3.innerHTML = tweet.author
-        var cell4 = rowElement.insertCell(3);
-        cell4.innerHTML = tweet.bookid
-        var cell5 = rowElement.insertCell(3);
-        cell5.innerHTML = tweet.dateposted
-        var cell6 = rowElement.insertCell(4);
-        cell6.innerHTML = tweet.tweetcontent
-      }
+      console.log('addTweetsToTable ', tweet)
+      console.log('addTweetsToTable id ', id)
+      var tableElement = document.getElementById('tweetsTable').getElementsByTagName('tbody')[0];
+      console.log('tableElement ', tableElement)
+      var rowElement = tableElement.insertRow()
+      rowElement.setAttribute('ID', tweet.id)
+
+      var tweetID = 'tweet_' + tweet.bookid
+      rowElement.setAttribute("class", tweetID);
+      var cell1 = rowElement.insertCell(0);
+      cell1.innerHTML = tweet.id
+      var cell2 = rowElement.insertCell(1);
+      cell2.innerHTML = tweet.title
+      var cell3 = rowElement.insertCell(2);
+      cell3.innerHTML = tweet.author
+      var cell4 = rowElement.insertCell(3);
+      cell4.innerHTML = tweet.bookid
+      var cell5 = rowElement.insertCell(3);
+      cell5.innerHTML = tweet.dateposted
+      var cell6 = rowElement.insertCell(4);
+      cell6.innerHTML = tweet.tweetcontent
     }
   </script>
   <script src="/static/jquery-3.4.1.js"></script>
@@ -243,7 +273,7 @@
     function createBookAjax(book) {
       console.log('createBookAjax', JSON.stringify(book));
       $.ajax({
-        url: host+"/api/books",
+        url: host + "/api/books",
         method: "POST",
         data: JSON.stringify(book),
         dataType: "JSON",
@@ -266,7 +296,7 @@
     function getBooksAjax() {
       console.log('getBooksAjax');
       $.ajax({
-        url: host+'/api/books',
+        url: host + '/api/books',
         method: "GET",
         success: function (data) {
           for (key in data) {
@@ -283,33 +313,33 @@
     function updateBookAjax(book) {
       console.log('updateBookAjax ', JSON.stringify(book));
       $.ajax({
-        "url": host+"/api/books/" + encodeURI(book.id),
-        "method": "PUT",
-        "data": JSON.stringify(book),
-        "dataType": "JSON",
+        url: host + "/api/books/" + encodeURI(book.id),
+        method: "PUT",
+        data: JSON.stringify(book),
+        dataType: "JSON",
         contentType: "application/json; charset=utf-8",
-        "success": function (result) {
+        success: function (result) {
           getBooksAjax()
         },
-        "error": function (xhr, status, error) {
+        error: function (xhr, status, error) {
           console.log("updateBookAjax - error: " + status + " msg:" + error);
         }
       });
     }
 
     function deleteBookAjax(id) {
-      console.log(JSON.stringify('deleteBookAjax '+id));
+      console.log(JSON.stringify('deleteBookAjax ' + id));
       $.ajax({
-        "url": host+"/api/books/" + encodeURI(id),
-        "method": "DELETE",
-        "data": "",
-        "dataType": "JSON",
+        url: host + "/api/books/" + encodeURI(id),
+        method: "DELETE",
+        data: "",
+        dataType: "JSON",
         contentType: "application/json; charset=utf-8",
-        "success": function (result) {
+        success: function (result) {
           console.log(result);
 
         },
-        "error": function (xhr, status, error) {
+        error: function (xhr, status, error) {
           console.log("deleteBookAjax - error: " + status + " msg:" + error);
         }
       });
@@ -318,54 +348,77 @@
     function getTweetsAjax(id) {
       console.log('getTweetsAjax ', id);
       $.ajax({
-        "url": host+"/api/tweets/" + encodeURI(id),
-        "method": "GET",
-        "data": "",
-        "dataType": "JSON",
+        url: host + "/api/tweets/" + encodeURI(id),
+        method: "GET",
+        data: "",
+        dataType: "JSON",
         contentType: "application/json; charset=utf-8",
-        "success": function (result) {
+        success: function (result) {
           console.log('ajax tweets', result);
+          // progressCell(tweetNumber)
         },
-        "error": function (xhr, status, error) {
+        error: function (xhr, status, error) {
           console.log("getTweetsAjax - error: " + status + " msg:" + error);
         }
       });
     }
 
-    // function getAllTweetsAjax(id) {
-    //   console.log('getAllTweetsAjax ', id)
-    //   $.ajax({
-    //     url: host+'/api/view_tweets/' + encodeURI(id),
-    //     method: "GET",
-    //     success: function (data) {
-    //       console.log(data)
-    //       for (key in data) {
-    //         addTweetsToTable(data[key]);
-    //         console.log(data[key])
-    //       }
-    //     },
-    //     "error": function (xhr, status, error) {
-    //       console.log("getAllTweetsAjax - error: " + status + " msg:" + error);
-    //     }
-    //   });
-    // }
-
-    function getAllTweetsAjax2(id) {
-        console.log('getAllTweetsAjax ')
-        $.ajax({
-          url: host+'/api/view_tweets/',
-          method: "GET",
-          success: function (data) {
-            console.log(data)
-            for (key in data) {
-              addTweetsToTable(data[key], id);
-            }
-          },
-          "error": function (xhr, status, error) {
-            console.log("getAllTweetsAjax 2 - error: " + status + " msg:" + error);
+    function countTweetsAjax(id, thisRow, tweetsFn) {
+      console.log('countTweetsAjax ', id);
+      $.ajax({
+        url: host + "/api/count_tweets/" + encodeURI(id),
+        method: "GET",
+        data: "",
+        dataType: "JSON",
+        contentType: "application/json; charset=utf-8",
+        success: function (result) {
+          console.log('count ajax tweets', result);
+          if (tweetsFn == 'doTweets') {
+            progressCellDo(thisRow, result)
+          } else {
+            progressCellGet(thisRow, result)
           }
-        });
-      }
+        },
+        error: function (xhr, status, error) {
+          console.log("countTweetsAjax - error: " + status + " msg:" + error);
+        }
+      });
+    }
+
+    function getAllTweetsAjax(id) {
+      console.log('getAllTweetsAjax ', id)
+      $.ajax({
+        url: host + '/api/view_tweets/' + encodeURI(id),
+        method: "GET",
+        success: function (data) {
+          console.log(data)
+          for (key in data) {
+            addTweetsToTable(data[key], id);
+            console.log(data[key])
+          }
+        },
+        error: function (xhr, status, error) {
+          console.log("getAllTweetsAjax - error: " + status + " msg:" + error);
+        }
+      });
+    }
+
+    // function getAllTweetsAjax2(id) {
+    //     console.log('getAllTweetsAjax ')
+    //     $.ajax({
+    //       url: host+'/api/view_tweets/',
+    //       method: "GET",
+    //       success: function (data) {
+    //         console.log(data)
+    //         for (key in data) {
+    //           addTweetsToTable(data[key], id);
+    //         }
+    //       },
+    //       "error": function (xhr, status, error) {
+    //         console.log("getAllTweetsAjax 2 - error: " + status + " msg:" + error);
+    //       }
+    //     });
+    //   }
 
     // setInterval(function(){
     //   console.log('interval ')
@@ -377,9 +430,5 @@
       getBooksAjax()
     })
   </script>
-
-  <!-- <script src="/static/math.js?r={{reload}}"></script> -->
-  <!-- <script type="text/javascript" src="{{ url_for('static', filename='math.js') }}"></script> -->
 </body>
-
 </html>

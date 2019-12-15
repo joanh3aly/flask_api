@@ -15,8 +15,6 @@ class BookDao:
     sql = "SELECT * FROM Books"
     cursor.execute(sql)
     result = cursor.fetchall()
-    # desc = cursor.description
-    # column_names = [col[0] for col in desc]
     cursor.close()
     return result
 
@@ -71,7 +69,7 @@ class BookDao:
     values = (id,)
     cursor.execute(sql, values)
     result = cursor.fetchall()
-    print('result ', result)
+    print('result get_tweets ', result)
     return result
 
   def get_tweets2(self):
@@ -81,5 +79,6 @@ class BookDao:
     result = cursor.fetchall()
     print('result ', result)
     return result
+
 
 books_dao = BookDao()

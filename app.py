@@ -120,8 +120,7 @@ def get_all_tweets(id):
     print('results ', type(results))
     results_lower = []
     for each in results:
-        results_lower.append({k.lower(): v for k, v in each.items()}) 
-    
+        results_lower.append({k.lower(): v for k, v in each.items()})     
     return jsonify(results_lower)
 
 @app.route('/api/view_tweets/', methods=['GET'])
@@ -130,9 +129,17 @@ def get_all_tweets2():
     print('results ', type(results))
     results_lower = []
     for each in results:
-        results_lower.append({k.lower(): v for k, v in each.items()}) 
-    
+        results_lower.append({k.lower(): v for k, v in each.items()})  
     return jsonify(results_lower)
+
+@app.route('/api/count_tweets/<int:id>', methods=['GET'])
+def count_tweets(id):
+    print('id ', id)
+    results = books_class.get_tweets(id)
+    print('count results ', results)
+    results_len = len(results)
+    print('count results ', results_len)
+    return jsonify(results_len)
 
 
 if __name__ == "__main__":

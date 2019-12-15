@@ -17,54 +17,20 @@ import dbconfig as cfg
 from db_connect import db as cnx
 
 
-
-# db = mysql.connector.connect(
-#   # host="localhost",
-#   # user="root",
-#   # password="",
-#   # database="Books",
-#   # auth_plugin='mysql_native_password'
-#   host = cfg.mysql['host'], 
-#   user = cfg.mysql['user'], 
-#   password = cfg.mysql['password'], 
-#   database = cfg.mysql['database'], 
-#   auth_plugin='mysql_native_password'
-# )
-
-
-
 class StdOutListener(StreamListener):
 
   def __init__(self, terms, id):
     self.sgtz = timezone('Europe/Dublin')
     self.utc = pytz.timezone('UTC')          
-    self.regex = re.compile('|'.join(terms).lower())   # re.compile(pattern, flags=0)  Compile a regular expression pattern into a regular expression object, which can be used for matching using its match() and search() methods
+    # re.compile(pattern, flags=0)  Compile a regular expression pattern into a regular expression object, which can be used for matching using its match() and search() methods
+    self.regex = re.compile('|'.join(terms).lower())   
     self.linenum_re = re.compile(r'([A-Z][A-Z]\d+)')
     self.retweets_re = re.compile(r'^RT\s')
     self.terms = terms
     self.id = id
 
     print('imported db', cnx)
-    # print('not imported db', db)
-
-  # def create_tweets(self, title, author, dateposted, tweetcontent):
-    # tweets = {
-    #   'title': title,
-    #   'author': author,
-    #   'dateposted': dateposted,
-    #   'tweetcontent': tweetcontent
-    # }  
-    # cursor = db.cursor()
-  #   print('tweets. ', tweets['author'])
-  #   sql = "insert into Tweets (Author,Title,DatePosted,TweetContent) values (%s, %s, %s, %s)"
-  #   values = (tweets['author'],tweets['title'],tweets['dateposted'],tweets['tweetcontent'])
-  #   cursor.execute(sql, values)
-  #   print('last ', cursor.lastrowid)
-  #   result = cursor.lastrowid
-  #   cursor.close()
-  #   self.db.commit() 
-  #   # db.close()
-  #   return result
+    
 
   # CREATE TABLE Tweets (
   #   ID int autoincrement primary key,
@@ -76,21 +42,14 @@ class StdOutListener(StreamListener):
 
   def on_data(self, data):
     tweet = json.loads(data) #.decode('utf-8') # Deserialize (a str or unicode instance containing a JSON document) to a Python object 
-    # print('tweet.keys() ', tweet.keys())
-    # print('tweet.keys() ', tweet.keys())
     # user = tweet['user']
     # if 'user' not in tweet.keys():   # key -- This is the Key to be searched in the dictionary.
     # # if 'user' not in tweet['to']:
     #     print('No user data - ignoring tweet.')
     #     return True
 
-    enc = lambda x: x.encode('latin1', errors='ignore')  # lambda :	 creation of anonymous functions // .encode Encodes obj using the codec registered for encoding. The default encoding is 'ascii'.
-    # user = enc(tweet['user']['name']) # enc function from .encode into latin , line 118 above
     user = tweet['user']['name']
     text = tweet['text']
-    # print("encoded", str(text))
-    # print("encoded type ", type(text))
-
     # ignore text that doesn't contain one of the keywords
     print('self.regex ', self.regex)
     matches = re.search(self.regex, tweet['text'].lower()) 	
@@ -101,11 +60,8 @@ class StdOutListener(StreamListener):
     if re.search(self.retweets_re, tweet['text']): # re_retweets from line 116 above - re.compile searches for RTs and this filters them out
         return True
 
-    # location = enc(tweet['user']['location'])
     location = tweet['user']['location']
-    # source = enc(tweet['source'])
     source = tweet['source']
-    # d = dateutil.parser.parse(enc(tweet['created_at']))
     d = dateutil.parser.parse(tweet['created_at'])
 
     # localize time - you need to use the normalize() method to handle daylight saving time and other timezone transitions
@@ -125,11 +81,9 @@ class StdOutListener(StreamListener):
       
   
     # is this a geocoded tweet?
-    if geo and geo['type'] == 'Point':   # see JSON format to see where 'POint' comes from 
-      # collect location of mrt station
+    if geo and geo['type'] == 'Point':  
       coords = geo['coordinates']
       print("coords", coords)
-      # print coords[1]
     
     # print summary of tweet
     print('%s\n%s\n%s\n%s\n%s\n\n ----------------\n' % (user, location, source, tmstr, text))
@@ -142,13 +96,12 @@ class StdOutListener(StreamListener):
       'tweetcontent': text
     }  
     print('tweets ', tweets)
-    # self.create_tweets( self.terms[0], self.terms[1], tmstr, text)
     cursor = cnx.cursor()
     sql = "insert into Tweets (Author,Title,DatePosted,bookid,TweetContent) values (%s, %s, %s, %s, %s)"
     values = (tweets['author'],tweets['title'],tweets['dateposted'], tweets['bookid'], tweets['tweetcontent'])
     cursor.execute(sql, values)
-    print('last ', cursor.lastrowid)
-    result = cursor.lastrowid
+    # print('last ', cursor.lastrowid)
+    # result = cursor.lastrowid
     cursor.close()
     cnx.commit() 
   
