@@ -35,7 +35,7 @@ def api_books():
     results_lower = []
     for each in results:
         results_lower.append({k.lower(): v for k, v in each.items()}) 
-    
+    # print('results_lower ', results_lower)
     return jsonify(results_lower)
 
 # curl -i -H "Content-Type:application/json" -X POST -d '{"title":"Sherlock Holmes", "author":"AC Doyle","date_posted":"1/12/2019"}' http://127.0.0.1:5000/api/books

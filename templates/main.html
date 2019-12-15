@@ -17,7 +17,7 @@
       <button id="showCreateButton" onclick="showCreate()">Create book</button>
     </div>
     <table class="table" id="bookTable">
-      <tr>
+      <thead>
         <th>ID</th>
         <th>Title</th>
         <th>Author</th>
@@ -27,7 +27,9 @@
         <th>Collect Tweets</th>
         <th>Progress</th>
         <th>View Tweets</th>
-      </tr>
+      <thead>
+      <tbody>
+      </tbody>
     </table>
   </div>
 
@@ -38,8 +40,8 @@
     <table class="tweetsTable" id="tweetsTable">
       <thead>
         <th>ID</th>
-        <th>Title</th>
         <th>Author</th>
+        <th>Title</th>
         <th>Date Posted</th>
         <th>Tweet Content</th>
         <th>Book ID</th>
@@ -88,6 +90,7 @@
 
     function populateFormWithBook(book) {
       var form = document.getElementById('createUpdateForm')
+      console.log('author populate ', book.author)
       form.querySelector('input[name="id"]').value = book.id
       form.querySelector('input[name="title"]').value = book.title
       form.querySelector('input[name="author"]').value = book.author
@@ -99,9 +102,11 @@
       var form = document.getElementById('createUpdateForm')
       var book = {}
       book.id = form.querySelector('input[name="id"]').value
-      book.title = form.querySelector('input[name="title"]').value
       book.author = form.querySelector('input[name="author"]').value
+      console.log('author', book.author)
+      book.title = form.querySelector('input[name="title"]').value
       book.dateposted = form.querySelector('input[name="dateposted"]').value
+      console.log('getBookFromForm ', book)
       console.log(JSON.stringify(book))
       return book
     }
@@ -114,9 +119,10 @@
       document.getElementById('updateLabel').style.display = "none"
       document.getElementById('doCreateButton').style.display = "none"
       document.getElementById('doUpdateButton').style.display = "block"
-
+      removeBooksFromTable()
       var rowElement = buttonElement.parentNode.parentNode
       var book = getBookFromRow(rowElement)
+      console.log('showUpdate ', book)
       populateFormWithBook(book)
     }
 
@@ -137,10 +143,12 @@
     }
 
     function doUpdate() {
+      // removeBooksFromTable()
       var book = getBookFromForm()
       var rowElement = document.getElementById(book.id)
+      console.log('book ', book)
       updateBookAjax(book)
-      setBookInRow(rowElement, book)
+      // setBookInRow(rowElement, book)
       clearForm()
       showViewAll()
     }
@@ -212,8 +220,9 @@
     }
 
     function addBookToTable(book) {
-      var tableElement = document.getElementById('bookTable')
-      var rowElement = tableElement.insertRow(-1)
+      var tableElement = document.getElementById('bookTable').getElementsByTagName('tbody')[0];
+      console.log('tableElement books ', tableElement)
+      var rowElement = tableElement.insertRow()
       rowElement.setAttribute('ID', book.id)
       var cell1 = rowElement.insertCell(0);
       cell1.innerHTML = book.id
@@ -238,6 +247,11 @@
     function removeTweetsFromTable() {
       console.log('$("#tweetsTable tbody tr") ', $("#tweetsTable tbody tr"))
       $("#tweetsTable tbody tr").remove();
+    }
+
+    function removeBooksFromTable() {
+      console.log('$("#bookTable tbody tr") ', $("#bookTable tbody tr"))
+      $("#bookTable tbody tr").remove();
     }
 
     function addTweetsToTable(tweet, id) {
@@ -318,7 +332,7 @@
         data: JSON.stringify(book),
         dataType: "JSON",
         contentType: "application/json; charset=utf-8",
-        success: function (result) {
+        success: function (result) { 
           getBooksAjax()
         },
         error: function (xhr, status, error) {

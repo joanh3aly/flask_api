@@ -45,8 +45,8 @@ class BookDao:
 
   def update(self, values):
     cursor = self.db.cursor()
-    print('values ', values)
-    sql = "update Books set Author = %s, Title=%s, DatePosted=%s where ID = %s"
+    print('update values ', values)
+    sql = "update Books set Title=%s, Author = %s, DatePosted=%s where ID = %s"
     cursor.execute(sql, values)
     result = id
     cursor.close()
