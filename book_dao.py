@@ -32,11 +32,9 @@ class BookDao:
 
   def create(self, book):
     cursor = self.db.cursor()
-    print('book. ', book['author'])
     sql = "insert into Books (Author,Title,DatePosted) values (%s, %s, %s)"
     values = (book['author'],book['title'],book['dateposted'])
     cursor.execute(sql, values)
-    print('last ', cursor.lastrowid)
     result = cursor.lastrowid
     cursor.close()
     self.db.commit() 
@@ -45,7 +43,6 @@ class BookDao:
 
   def update(self, values):
     cursor = self.db.cursor()
-    print('update values ', values)
     sql = "update Books set Title=%s, Author = %s, DatePosted=%s where ID = %s"
     cursor.execute(sql, values)
     result = id
@@ -55,7 +52,6 @@ class BookDao:
 
   def delete(self, id):
     cursor = self.db.cursor()
-    print('id is ', id)
     sql = "DELETE FROM Books WHERE ID = %s"
     values = (id,)
     cursor.execute(sql, values)
@@ -65,11 +61,9 @@ class BookDao:
   def get_tweets(self, id):
     cursor = self.db.cursor(buffered=True, dictionary=True)
     sql = "SELECT * from Tweets WHERE bookid = %s"
-    print('sql ', sql)
     values = (id,)
     cursor.execute(sql, values)
     result = cursor.fetchall()
-    print('result get_tweets ', result)
     return result
 
   def get_tweets2(self):
@@ -77,8 +71,7 @@ class BookDao:
     sql = "SELECT * from Tweets"
     cursor.execute(sql)
     result = cursor.fetchall()
-    print('result ', result)
     return result
 
 
-books_dao = BookDao()
+# books_dao = BookDao()
